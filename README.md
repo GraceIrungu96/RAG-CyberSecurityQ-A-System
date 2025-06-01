@@ -46,7 +46,7 @@ User Query → Document Retrieval → Context Enrichment → AI Generation → R
 
 1. **Clone the repository**
    ```bash
-   git clone [https://github.com/GraceIrungu96/RAG-CyberSecurityQ-A-System](https://github.com/GraceIrungu96/RAG-CyberSecurityQ-A-System).git
+   git clone https://github.com/GraceIrungu96/RAG-CyberSecurityQ-A-System.git
    cd RAG-CyberSecurityQ-A-System
    ```
 
