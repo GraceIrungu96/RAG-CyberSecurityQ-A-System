@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Awareness Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="30" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="80" r="2.5" fill="rgba(255,255,255,0.1)"/></svg>');
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .chat-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            height: 400px;
+            overflow-y: auto;
+            border: 2px solid #e9ecef;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .message.user {
+            text-align: right;
+        }
+
+        .message.assistant {
+            text-align: left;
+        }
+
+        .message-bubble {
+            display: inline-block;
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            word-wrap: break-word;
+            position: relative;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message.assistant .message-bubble {
+            background: white;
+            color: #333;
+            border: 2px solid #e9ecef;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        #questionInput {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        #questionInput:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #askButton {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        #askButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        #askButton:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px dashed #dee2e6;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-section h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        #pdfFile {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #6c757d;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-label:hover {
+            background: #5a6268;
+        }
+
+        .upload-inputs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .upload-inputs input, .upload-inputs select {
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .upload-inputs input:focus, .upload-inputs select:focus {
+            border-color: #667eea;
+        }
+
+        #uploadButton {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #uploadButton:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .quick-questions {
+            margin-bottom: 20px;
+        }
+
+        .quick-questions h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .question-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .question-tag {
+            padding: 8px 15px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .question-tag:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .input-section {
+                flex-direction: column;
+            }
+
+            .upload-inputs {
+                flex-direction: column;
+            }
+
+            .question-tags {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Cybersecurity Assistant</h1>
+            <p>Your AI-powered guide to staying safe in the digital world</p>
+        </div>
+
+        <div class="main-content">
+            <div class="quick-questions">
+                <h3>Quick Questions</h3>
+                <div class="question-tags">
+                    <div class="question-tag" onclick="askQuickQuestion('How do I know if an email is a phishing attempt?')">
+                        Phishing Detection
+                    </div>
+                    <div class="question-tag" onclick="askQuickQuestion('What makes a password strong and secure?')">
+                        Password Security
+                    </div>
+                    <div class="question-tag" onclick="askQuickQuestion('How can I protect my computer from malware?')">
+                        Malware Protection
+                    </div>
+                    <div class="question-tag" onclick="askQuickQuestion('What is social engineering and how do I protect myself?')">
+                        Social Engineering
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-container" id="chatContainer">
+                <div class="message assistant">
+                    <div class="message-bubble">
+                        Hello! I'm your cybersecurity assistant. Ask me anything about staying safe online, from phishing emails to password security. How can I help you today?
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <div class="input-wrapper">
+                    <input type="text" id="questionInput" placeholder="Ask me about cybersecurity..." />
+                </div>
+                <button id="askButton" onclick="askQuestion()">Ask</button>
+            </div>
+
+            <div class="upload-section">
+                <h3>📄 Upload PDF Documents</h3>
+                <p style="color: #6c757d; margin-bottom: 15px;">Expand the knowledge base with your own cybersecurity documents</p>
+                
+                <div class="file-input-wrapper">
+                    <input type="file" id="pdfFile" accept=".pdf" />
+                    <label for="pdfFile" class="file-input-label">Choose PDF File</label>
+                </div>
+                
+                <div class="upload-inputs">
+                    <input type="text" id="sourceName" placeholder="Document name (e.g., 'Security Policy')" />
+                    <input type="text" id="topic" placeholder="Topic (optional)" />
+                    <select id="difficulty">
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate" selected>Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </div>
+                
+                <button id="uploadButton" onclick="uploadPDF()">Upload Document</button>
+                
+                <div id="uploadStatus"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://20.245.224.153:8000';
+        
+        function addMessage(content, isUser = false) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+            
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'message-bubble';
+            bubbleDiv.innerHTML = content;
+            
+            messageDiv.appendChild(bubbleDiv);
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function showLoading() {
+            addMessage('<span class="loading-spinner"></span> Thinking...');
+        }
+
+        function removeLoadingMessage() {
+            const chatContainer = document.getElementById('chatContainer');
+            const messages = chatContainer.querySelectorAll('.message.assistant');
+            const lastMessage = messages[messages.length - 1];
+            if (lastMessage && lastMessage.innerHTML.includes('loading-spinner')) {
+                lastMessage.remove();
+            }
+        }
+
+        async function askQuestion() {
+            const input = document.getElementById('questionInput');
+            const button = document.getElementById('askButton');
+            const question = input.value.trim();
+            
+            if (!question) return;
+            
+            // Add user message
+            addMessage(question, true);
+            input.value = '';
+            
+            // Show loading
+            button.disabled = true;
+            button.innerHTML = '<span class="loading-spinner"></span>';
+            showLoading();
+            
+            try {
+                const response = await fetch(`${API_BASE}/query`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question: question,
+                        context_limit: 3
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                removeLoadingMessage();
+                addMessage(data.answer.replace(/\n/g, '<br>'));
+                
+            } catch (error) {
+                removeLoadingMessage();
+                addMessage('Sorry, I encountered an error while processing your question. Please try again or check if the server is running.');
+                console.error('Error:', error);
+            }
+            
+            // Reset button
+            button.disabled = false;
+            button.textContent = 'Ask';
+        }
+
+        function askQuickQuestion(question) {
+            document.getElementById('questionInput').value = question;
+            askQuestion();
+        }
+
+        async function uploadPDF() {
+            const fileInput = document.getElementById('pdfFile');
+            const sourceName = document.getElementById('sourceName').value.trim();
+            const topic = document.getElementById('topic').value.trim();
+            const difficulty = document.getElementById('difficulty').value;
+            const statusDiv = document.getElementById('uploadStatus');
+            const uploadButton = document.getElementById('uploadButton');
+            
+            if (!fileInput.files[0]) {
+                showStatus('Please select a PDF file', 'error');
+                return;
+            }
+            
+            if (!sourceName) {
+                showStatus('Please enter a document name', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('source_name', sourceName);
+            formData.append('topic', topic || 'general');
+            formData.append('difficulty', difficulty);
+            
+            uploadButton.disabled = true;
+            uploadButton.textContent = 'Uploading...';
+            showStatus('Uploading document...', 'loading');
+            
+            try {
+                const response = await fetch(`${API_BASE}/upload-pdf`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                showStatus(data.message, 'success');
+                
+                // Reset form
+                fileInput.value = '';
+                document.getElementById('sourceName').value = '';
+                document.getElementById('topic').value = '';
+                document.getElementById('difficulty').value = 'intermediate';
+                
+            } catch (error) {
+                showStatus('Upload failed. Please try again.', 'error');
+                console.error('Upload error:', error);
+            }
+            
+            uploadButton.disabled = false;
+            uploadButton.textContent = 'Upload Document';
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('uploadStatus');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Handle Enter key in input
+        document.getElementById('questionInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                askQuestion();
+            }
+        });
+
+        // Update file input label when file is selected
+        document.getElementById('pdfFile').addEventListener('change', function(e) {
+            const label = document.querySelector('.file-input-label');
+            if (e.target.files[0]) {
+                label.textContent = e.target.files[0].name;
+            } else {
+                label.textContent = 'Choose PDF File';
+            }
+        });
+
+        // Check API health on load
+        window.addEventListener('load', function() {
+            fetch(`${API_BASE}/health`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status !== 'healthy') {
+                        addMessage('⚠️ Warning: The assistant may not be fully operational. Some features might not work correctly.');
+                    }
+                })
+                .catch(error => {
+                    addMessage('⚠️ Warning: Unable to connect to the server. Please check if the service is running.');
+                });
+        });
+    </script>
+</body>
+</html>
