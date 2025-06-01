@@ -46,8 +46,8 @@ User Query → Document Retrieval → Context Enrichment → AI Generation → R
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/cybersecurity-rag-assistant.git
-   cd cybersecurity-rag-assistant
+   git clone [https://github.com/GraceIrungu96/RAG-CyberSecurityQ-A-System](https://github.com/GraceIrungu96/RAG-CyberSecurityQ-A-System).git
+   cd RAG-CyberSecurityQ-A-System
    ```
 
 2. **Create virtual environment** (recommended)
